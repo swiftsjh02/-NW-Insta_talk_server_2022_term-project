@@ -158,6 +158,22 @@ public class request_server implements Runnable {
                     ObjectOutputStream temp_oos = new ObjectOutputStream(socket.getOutputStream());
                     temp_oos.writeObject(tmp_content);
                     temp_oos.flush();
+                }else if(content.getTypeofrequest()==55){
+                    System.out.println(content.getSender()+"에서 탈퇴요청");
+                    boolean response=db.delete_user(content.getSender());
+                    protocol tmp_content = new protocol(55, response);
+                    ObjectOutputStream temp_oos = new ObjectOutputStream(socket.getOutputStream());
+                    temp_oos.writeObject(tmp_content);
+                    temp_oos.flush();
+                }else if(content.getTypeofrequest()==51){
+                    System.out.println(content.getSender()+"로 부터 내 정보 요청");
+                    String name=db.get_name(content.getSender());
+                    String phoneNum=db.get_phoneNum(content.getSender());
+                    protocol tmp_content = new protocol(51,"server", name,phoneNum);
+                    ObjectOutputStream temp_oos = new ObjectOutputStream(socket.getOutputStream());
+                    temp_oos.writeObject(tmp_content);
+                    temp_oos.flush();
+
                 }
                 else {
                     System.out.println("잘못된 요청입니다.");

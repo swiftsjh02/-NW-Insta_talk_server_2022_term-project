@@ -44,10 +44,23 @@ public class database {
             String sql2= "delete from chat_table";
             String sql3="delete from online_user";
             String sql4="delete from User";
+            String sql5="delete from post";
+            String sql6="delete from follow";
+            String sql7="delete from hashtag";
+            String sql8="delete from image";
+            String sql9="delete from user_post_like";
+            String sql10="delete from user_post_tag";
             statement.execute(sql);
             statement.execute(sql2);
             statement.execute(sql3);
+            statement.execute(sql9);
+            statement.execute(sql10);
+            statement.execute(sql8);
+            statement.execute(sql5);
             statement.execute(sql4);
+
+            statement.execute(sql6);
+            statement.execute(sql7);
             return true;
         }catch (Exception e){
             e.printStackTrace();
@@ -71,6 +84,34 @@ public class database {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public boolean delete_user(String user_id){
+        try{
+            String sql = "delete from User where user_id=?";
+            String sql2="delete from chat_manager where member=?";
+            String sql3="delete from friend_list where user_id=? or friend=?";
+            String sql4="delete from online_user where user_id=?";
+            int a=get_user_id(user_id);
+            preparedstatement=con.prepareStatement(sql2);
+            preparedstatement.setInt(1,a);
+            preparedstatement.execute();
+            preparedstatement=con.prepareStatement(sql3);
+            preparedstatement.setInt(1,a);
+            preparedstatement.setInt(2,a);
+            preparedstatement.execute();
+            preparedstatement=con.prepareStatement(sql4);
+            preparedstatement.setInt(1,a);
+            preparedstatement.execute();
+            preparedstatement=con.prepareStatement(sql);
+            preparedstatement.setInt(1,a);
+            preparedstatement.execute();
+            return true;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public int get_like_num(String post_id){
@@ -785,10 +826,52 @@ public class database {
 
     }
 
+    public String get_name(String email){
+        try{
+            String sql="select name from User where email=?";
+            preparedstatement =con.prepareStatement(sql);
+            preparedstatement.setString(1,email);
+            result=preparedstatement.executeQuery();
+            result.next();
+            return result.getString(1);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    public String get_phoneNum(String email){
+        try{
+            String sql="select phone from User where email=?";
+            preparedstatement =con.prepareStatement(sql);
+            preparedstatement.setString(1,email);
+            result=preparedstatement.executeQuery();
+            result.next();
+            return result.getString(1);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
     public String newroom(protocol tmp){
+        System.out.println("database: new room");
         String sql ="insert into chat_manager (chat_id,member) values (?,?);";
         String sql2="insert into chat_table (chat_room_id,chat_file) values (?,?);";
         ArrayList<Integer> user_list= new ArrayList<>();
+        ArrayList<Integer> user_list_duplicate_remove = new ArrayList<>();
+
+        for(int item : user_list){
+            if(!user_list_duplicate_remove.contains(item))
+                user_list_duplicate_remove.add(item);
+        }
+
+        user_list=user_list_duplicate_remove;
+
         for(int i=0; i<tmp.getList().size(); i++){
             user_list.add(get_user_id(tmp.getList().get(i)));
             System.out.println("초대 할 유저 아이디 : "+user_list.get(i));
